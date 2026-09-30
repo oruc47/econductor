@@ -43,6 +43,12 @@ You can also download one preset explicitly with `econductor models download bal
 
 If `econductor` says “command not found,” open a new Terminal window after setup. If it still fails, run `uv tool update-shell` and open another Terminal window. `uv run econductor` only finds the app when invoked inside the Econductor code checkout; use the installed `econductor` command in research folders. If setup reports that `sandbox-exec` cannot apply a default-deny profile, rerun setup directly in Terminal.app, then check `econductor doctor` again. Econductor leaves execution disabled if that safety check fails. A failed model download can be resumed by selecting the same preset again. R and Stata require their own installations; the setup wizard can locate them but does not install or license them.
 
+## Hugging Face token (optional)
+
+The nine built-in model presets listed below are currently public and do **not** require a Hugging Face account or token to download. Econductor makes anonymous requests when you skip login; it does not silently use a token from another Hugging Face app. A token you enter during setup applies to Econductor's built-in model downloads, including any future preset that may require authentication. It is not used for local inference or sent with your research data. Manual downloads with the `hf` CLI use separate Hugging Face credentials.
+
+To add a token, [create a Hugging Face account](https://huggingface.co/join) if needed, then open [Settings → Access Tokens](https://huggingface.co/settings/tokens), select **New token**, and choose **Read** access. Run `econductor setup`, answer **yes** to the Hugging Face login prompt, and paste the token there. Econductor checks the account and stores the token in macOS Keychain, not in the project or repository. Do not paste it into a shell command, chat, or committed file. For a gated model, first request access on that model's Hugging Face page; a token alone does not grant access. See [Hugging Face's token guide](https://huggingface.co/docs/hub/security-tokens) and [gated-model guide](https://huggingface.co/docs/hub/models-gated).
+
 ## Workflow
 
 - Enter sends a prompt; Shift+Enter or Ctrl+J inserts a newline. Escape cancels work.
@@ -80,6 +86,20 @@ econductor evaluate balanced
 ```
 
 Real-model evaluation is opt-in and never downloads a model. It is a synthetic smoke test, not an economics or coding benchmark. Models requiring remote Python code are unsupported. Weights are validated before registration and loaded from local paths only. Larger presets have verified repository listings and loader-family support, but have not been downloaded or run on the current 36 GB development Mac.
+
+## Add another model
+
+For your own Mac, choose a **quantized MLX language model** that `mlx-lm` supports and inspect its license, size, and chat/tool template on Hugging Face. Download the complete model to a folder outside your research project, then register that folder. Replace `OWNER/MODEL-MLX-4bit` with the repository ID you chose:
+
+```sh
+uvx --from huggingface_hub hf download OWNER/MODEL-MLX-4bit --local-dir "$HOME/Models/my-mlx-model"
+econductor models add my-mlx-model "$HOME/Models/my-mlx-model"
+econductor models list
+```
+
+The first command uses [Hugging Face's `hf download`](https://huggingface.co/docs/huggingface_hub/guides/cli#hf-download); it runs online and can be resumed. `models add` only validates and registers files already on disk, so it never downloads anything. Use a local name that differs from the built-in preset names. The folder needs `config.json`, `tokenizer_config.json`, `tokenizer.json`, complete `.safetensors` weights, and MLX quantization settings. A successfully registered model appears under `/model` in chat. Registration checks the files, but does not prove that the model will load or produce valid tool calls; try `econductor evaluate my-mlx-model` before relying on it. Models requiring remote Python code are unsupported. If your chosen repository is private or gated, use Hugging Face's authenticated download procedure; Econductor's Keychain token is separate from the `hf` CLI login.
+
+To offer a new built-in preset to everyone who installs from the repository, add a `Preset` entry in [`src/econductor/models.py`](src/econductor/models.py), include realistic download and memory estimates in the table above, and validate the model with `econductor evaluate` on a suitable Mac. A built-in preset can then be downloaded through `/model` or `econductor models download <preset>` without a separate `hf` step.
 
 ## Privacy and resource limits
 
