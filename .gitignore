@@ -1,0 +1,53 @@
+# Python environments and generated files
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+*.egg-info/
+build/
+dist/
+
+# Local Econductor sessions, analysis output, and machine settings
+.econductor/
+artifacts/
+outputs/
+.env
+.env.*
+settings.local.json
+credentials.json
+*.pem
+*.key
+
+# Research data and downloaded model weights: add only deliberate public fixtures
+data/
+*.csv
+*.tsv
+*.parquet
+*.arrow
+*.feather
+*.dta
+*.rds
+*.RData
+*.sav
+*.sas7bdat
+*.xlsx
+*.xls
+*.duckdb
+*.db
+*.sqlite
+*.pdf
+*.docx
+*.pptx
+*.zip
+*.safetensors
+*.gguf
+*.pt
+!examples/panel_demo/panel.csv
+
+# macOS
+.DS_Store
+.AppleDouble
