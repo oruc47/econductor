@@ -8,11 +8,27 @@ A local terminal coding agent for economists on Apple Silicon Macs. Models, proj
 
 ## Set up on a Mac
 
-Econductor requires an Apple Silicon Mac with macOS 15 or newer, [uv](https://docs.astral.sh/uv/getting-started/installation/), and enough unified memory and disk space for the model you choose. Python analysis packages install with the app; R and licensed Stata are optional. Use a normal Mac terminal for setup because a terminal embedded in another sandbox may prevent Econductor's offline safety check from running.
+Econductor requires an Apple Silicon Mac with macOS 15 or newer and enough unified memory and disk space for the model you choose. Python analysis packages install with the app; R and licensed Stata are optional. Use Terminal.app for setup because a terminal embedded in another sandbox may prevent Econductor's offline safety check from running.
 
-1. Download or clone this repository, open Terminal.app, and change into its `econductor` folder.
-2. Run `./bootstrap.sh` **once**. It installs the locked Python dependencies, places an `econductor` command in your user executable directory, checks the local sandbox and GPU, and starts the setup wizard. If you already have Stata, accept the detected executable or enter its full path. Hugging Face login is optional for public presets; if you choose to log in, supply a **read** token. Econductor stores it in macOS Keychain. If setup adds the executable directory to your shell's `PATH`, open a new Terminal window afterward.
-3. Choose a specific research-project folder containing the data you want to use. In that folder, run `econductor`:
+1. For a one-command install, run this in Terminal.app:
+
+   ```sh
+   curl -fsSL https://raw.githubusercontent.com/oruc47/econductor/main/install.sh | sh
+   ```
+
+   This works after `install.sh` is pushed to a public `main` branch. It downloads that branch into `~/.local/share/econductor`, installs [uv](https://docs.astral.sh/uv/getting-started/installation/) if needed, and runs the setup wizard. It never downloads a model automatically. Review [install.sh](install.sh) before running it if you prefer. Running the command again reruns setup using the installed copy; it does not overwrite that copy. For a private repository, use an authenticated clone instead.
+
+   Alternatively, download or clone this repository and run `./bootstrap.sh` from its folder (install uv first for this route):
+
+   ```sh
+   git clone https://github.com/oruc47/econductor.git
+   cd econductor
+   ./bootstrap.sh
+   ```
+
+   Both routes install the locked Python dependencies and place an `econductor` command in your user executable directory. If you already have Stata, accept the detected executable or enter its full path. Hugging Face login is optional for public presets; if you choose to log in, supply a **read** token. Econductor stores it in macOS Keychain. Open a new Terminal window after setup so the command is on your `PATH`.
+
+2. Choose a specific research-project folder containing the data you want to use. In that folder, run `econductor`:
 
    ```sh
    cd /path/to/research-project
@@ -21,11 +37,11 @@ Econductor requires an Apple Silicon Mac with macOS 15 or newer, [uv](https://do
 
    You can also run `econductor chat /path/to/research-project` from elsewhere. Run `econductor doctor` and `econductor models list` to check the machine and available models.
 
-4. Type `/model` in chat. The picker shows the Mac's estimated fit. Choosing a model that is not already local **starts its download**; setup never downloads model weights. For a first run, try `light` for speed or `balanced` for general work. Ask a simple question about the selected project to test it.
+3. Type `/model` in chat. The picker shows the Mac's estimated fit. Choosing a model that is not already local **starts its download**; setup never downloads model weights. For a first run, try `light` for speed or `balanced` for general work. Ask a simple question about the selected project to test it.
 
-You can also download one preset explicitly with `econductor models download balanced`. Bootstrap uses the repository's locked dependencies; after that, ordinary `econductor` commands do not invoke uv or a package registry. Keep the downloaded Econductor code folder in place: the command installed by bootstrap points to its Python environment. An explicit `/model` choice or `models download` still contacts Hugging Face. Model inference, file inspection, analysis, and conversations stay local. Choose a project folder rather than your home directory or the Econductor code folder. The project's `.econductor/` contains transcripts and results; add it to that project's `.gitignore` and keep it with your restricted data.
+You can also download one preset explicitly with `econductor models download balanced`. Bootstrap uses the repository's locked dependencies; after that, ordinary `econductor` commands do not invoke uv or a package registry. Keep the installed Econductor code folder in place: the command points to its Python environment. An explicit `/model` choice or `models download` still contacts Hugging Face. Model inference, file inspection, analysis, and conversations stay local. Choose a project folder rather than your home directory or the Econductor code folder. The project's `.econductor/` contains transcripts and results; add it to that project's `.gitignore` and keep it with your restricted data.
 
-If `econductor` says “command not found,” open a new Terminal window after bootstrap. If it still fails, run `uv tool update-shell` and open another Terminal window. `uv run econductor` only finds the app when invoked inside the Econductor code checkout; use the installed `econductor` command in research folders. If setup reports that `sandbox-exec` cannot apply a default-deny profile, run `./bootstrap.sh` directly in Terminal.app, then check `econductor doctor` again. Econductor leaves execution disabled if that safety check fails. A failed model download can be resumed by selecting the same preset again. R and Stata require their own installations; the setup wizard can locate them but does not install or license them.
+If `econductor` says “command not found,” open a new Terminal window after setup. If it still fails, run `uv tool update-shell` and open another Terminal window. `uv run econductor` only finds the app when invoked inside the Econductor code checkout; use the installed `econductor` command in research folders. If setup reports that `sandbox-exec` cannot apply a default-deny profile, rerun setup directly in Terminal.app, then check `econductor doctor` again. Econductor leaves execution disabled if that safety check fails. A failed model download can be resumed by selecting the same preset again. R and Stata require their own installations; the setup wizard can locate them but does not install or license them.
 
 ## Workflow
 
