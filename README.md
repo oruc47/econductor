@@ -1,5 +1,9 @@
 # Econductor
 
+![Econductor terminal UI with a synthetic panel-data example](docs/images/econductor-demo.svg)
+
+*Illustrative session using synthetic data.*
+
 A local terminal coding agent for economists on Apple Silicon Macs. Models, project data, conversations, and analysis stay on your machine. Only explicit setup/model-download actions use the internet.
 
 ## Set up on a Mac
@@ -7,20 +11,21 @@ A local terminal coding agent for economists on Apple Silicon Macs. Models, proj
 Econductor requires an Apple Silicon Mac with macOS 15 or newer, [uv](https://docs.astral.sh/uv/getting-started/installation/), and enough unified memory and disk space for the model you choose. Python analysis packages install with the app; R and licensed Stata are optional. Use a normal Mac terminal for setup because a terminal embedded in another sandbox may prevent Econductor's offline safety check from running.
 
 1. Download or clone this repository, open Terminal.app, and change into its `econductor` folder.
-2. Run `./bootstrap.sh`. It installs the locked Python dependencies, checks the local sandbox and GPU, and starts the setup wizard. If you already have Stata, accept the detected executable or enter its full path. Hugging Face login is optional for public presets; if you choose to log in, supply a **read** token. Econductor stores it in macOS Keychain.
-3. Check the machine and available models with `uv run --offline --frozen econductor doctor` and `uv run --offline --frozen econductor models list`.
-4. Choose a specific research-project folder containing the data you want to use, then start the chat:
+2. Run `./bootstrap.sh` **once**. It installs the locked Python dependencies, places an `econductor` command in your user executable directory, checks the local sandbox and GPU, and starts the setup wizard. If you already have Stata, accept the detected executable or enter its full path. Hugging Face login is optional for public presets; if you choose to log in, supply a **read** token. Econductor stores it in macOS Keychain. If setup adds the executable directory to your shell's `PATH`, open a new Terminal window afterward.
+3. Choose a specific research-project folder containing the data you want to use. In that folder, run `econductor`:
 
    ```sh
-   cd /path/to/econductor
-   uv run --offline --frozen econductor chat /path/to/research-project
+   cd /path/to/research-project
+   econductor
    ```
 
-5. Type `/model` in chat. The picker shows the Mac's estimated fit. Choosing a model that is not already local **starts its download**; setup never downloads model weights. For a first run, try `light` for speed or `balanced` for general work. Ask a simple question about the selected project to test it.
+   You can also run `econductor chat /path/to/research-project` from elsewhere. Run `econductor doctor` and `econductor models list` to check the machine and available models.
 
-You can also download one preset explicitly with `uv run --offline --frozen econductor models download balanced`. `--offline` stops uv from fetching packages after bootstrap; an explicit `/model` choice or `models download` still contacts Hugging Face. Model inference, file inspection, analysis, and conversations stay local. Choose a project folder rather than your home directory or the Econductor code folder. The project's `.econductor/` contains transcripts and results; add it to that project's `.gitignore` and keep it with your restricted data.
+4. Type `/model` in chat. The picker shows the Mac's estimated fit. Choosing a model that is not already local **starts its download**; setup never downloads model weights. For a first run, try `light` for speed or `balanced` for general work. Ask a simple question about the selected project to test it.
 
-If setup reports that `sandbox-exec` cannot apply a default-deny profile, run `./bootstrap.sh` directly in Terminal.app, then check `econductor doctor` again. Econductor leaves execution disabled if that safety check fails. A failed model download can be resumed by selecting the same preset again. R and Stata require their own installations; the setup wizard can locate them but does not install or license them.
+You can also download one preset explicitly with `econductor models download balanced`. Bootstrap uses the repository's locked dependencies; after that, ordinary `econductor` commands do not invoke uv or a package registry. Keep the downloaded Econductor code folder in place: the command installed by bootstrap points to its Python environment. An explicit `/model` choice or `models download` still contacts Hugging Face. Model inference, file inspection, analysis, and conversations stay local. Choose a project folder rather than your home directory or the Econductor code folder. The project's `.econductor/` contains transcripts and results; add it to that project's `.gitignore` and keep it with your restricted data.
+
+If `econductor` says “command not found,” open a new Terminal window after bootstrap. If it still fails, run `uv tool update-shell` and open another Terminal window. `uv run econductor` only finds the app when invoked inside the Econductor code checkout; use the installed `econductor` command in research folders. If setup reports that `sandbox-exec` cannot apply a default-deny profile, run `./bootstrap.sh` directly in Terminal.app, then check `econductor doctor` again. Econductor leaves execution disabled if that safety check fails. A failed model download can be resumed by selecting the same preset again. R and Stata require their own installations; the setup wizard can locate them but does not install or license them.
 
 ## Workflow
 
@@ -53,9 +58,9 @@ Python analysis packages ship with the app. Install R and licensed Stata yoursel
 More memory does not place an entire dataset into the model's context. Econductor uses disk-backed data tools and bounded previews; ask it to aggregate or sample a large dataset before requesting a regression. The default context is 16,384 tokens, with 4,096 reserved for generation. If the machine-fit label says “tight” or “below minimum,” try a smaller preset or shorter context. [MLX uses Apple's shared CPU/GPU memory pool](https://github.com/ml-explore/mlx/blob/main/docs/src/usage/unified_memory.rst), so RAM estimates include more than the model file on disk.
 
 ```sh
-uv run --offline --frozen econductor models add my-model /path/to/mlx-model
-uv run --offline --frozen econductor doctor
-uv run --offline --frozen econductor evaluate balanced
+econductor models add my-model /path/to/mlx-model
+econductor doctor
+econductor evaluate balanced
 ```
 
 Real-model evaluation is opt-in and never downloads a model. It is a synthetic smoke test, not an economics or coding benchmark. Models requiring remote Python code are unsupported. Weights are validated before registration and loaded from local paths only. Larger presets have verified repository listings and loader-family support, but have not been downloaded or run on the current 36 GB development Mac.

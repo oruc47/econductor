@@ -80,7 +80,7 @@ def setup() -> None:
             "Offline enforcement unavailable: "
             f"{reason}. Setup was not saved and execution remains disabled. "
             "Run ./bootstrap.sh from a Terminal.app window outside an IDE/agent sandbox, "
-            "then use 'uv run econductor doctor' if the check still fails."
+            "then use 'econductor doctor' if the check still fails."
         )
     settings.configured = True
     settings.save()
